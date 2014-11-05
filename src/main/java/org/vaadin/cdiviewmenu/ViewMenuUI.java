@@ -30,6 +30,10 @@ public class ViewMenuUI extends UI {
         navigator.addProvider(viewProvider);
     }
 
+    public ViewMenuLayout getViewMenuLayout() {
+        return viewMenuLayout;
+    }
+    
     public CssLayout getContentLayout() {
         return viewMenuLayout.getMainContent();
     }

@@ -46,4 +46,8 @@ public class ViewMenuLayout extends MHorizontalLayout {
         });
     }
 
+    public ViewMenu getViewMenu() {
+        return viewMenu;
+    }
+
 }
