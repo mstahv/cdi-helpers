@@ -1,5 +1,6 @@
 package org.vaadin.cdiviewmenu;
 
+import com.vaadin.annotations.Title;
 import com.vaadin.cdi.CDIView;
 import com.vaadin.navigator.View;
 import com.vaadin.server.FontAwesome;
@@ -38,6 +39,8 @@ public class ViewMenu extends CssLayout {
 
     @Inject
     BeanManager beanManager;
+
+    private Header header = new Header(null).setHeaderLevel(3);
 
     public List<Bean<?>> getAvailableViews() {
         Set<Bean<?>> all = beanManager.getBeans(View.class,
@@ -100,13 +103,22 @@ public class ViewMenu extends CssLayout {
         CssLayout items = new CssLayout(getAsLinkButtons(getAvailableViews()));
         items.setPrimaryStyleName("valo-menuitems");
         addComponent(items);
+        
+        addAttachListener(new AttachListener() {
+            @Override
+            public void attach(AttachEvent event) {
+                if(getMenuTitle() == null) {
+                    setMenuTitle(detectMenuTitle());
+                }
+            }
+        });
     }
 
     protected void createHeader() {
         setPrimaryStyleName("valo-menu");
         addStyleName("valo-menu-part");
         MHorizontalLayout headercontent = new MHorizontalLayout(
-                new Header("Simple CRM").setHeaderLevel(3)).withMargin(false).
+                header).withMargin(false).
                 alignAll(Alignment.MIDDLE_CENTER);
         headercontent.setStyleName("valo-menu-title");
         addComponent(headercontent);
@@ -184,5 +196,26 @@ public class ViewMenu extends CssLayout {
         if (active != null) {
             active.setEnabled(false);
         }
+    }
+
+    public String getMenuTitle() {
+        return header.getText();
+    }
+
+    public void setMenuTitle(String menuTitle) {
+        this.header.setText(menuTitle);
+    }
+
+    private String detectMenuTitle() {
+        // try to dig a sane default from Title annotation in UI or class name
+        final Class<? extends UI> uiClass = getUI().getClass();
+        Title title = uiClass.getAnnotation(Title.class);
+        if (title != null) {
+            return title.value();
+        } else {
+            String simpleName = uiClass.getSimpleName();
+            return simpleName.replaceAll("UI", "");
+        }
+
     }
 }
