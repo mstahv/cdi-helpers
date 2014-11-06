@@ -2,6 +2,7 @@ package org.vaadin.cdiviewmenu;
 
 import com.vaadin.annotations.Title;
 import com.vaadin.cdi.CDIView;
+import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Resource;
@@ -21,6 +22,7 @@ import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Inject;
 import java.util.*;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * A helper to automatically create a menu from available Vaadin CDI view.
@@ -41,6 +43,8 @@ public class ViewMenu extends CssLayout {
     BeanManager beanManager;
 
     private Header header = new Header(null).setHeaderLevel(3);
+
+    private Button selectedButton;
 
     public List<Bean<?>> getAvailableViews() {
         Set<Bean<?>> all = beanManager.getBeans(View.class,
@@ -103,15 +107,27 @@ public class ViewMenu extends CssLayout {
         CssLayout items = new CssLayout(getAsLinkButtons(getAvailableViews()));
         items.setPrimaryStyleName("valo-menuitems");
         addComponent(items);
-        
+
         addAttachListener(new AttachListener() {
             @Override
             public void attach(AttachEvent event) {
-                if(getMenuTitle() == null) {
+                if (getMenuTitle() == null) {
                     setMenuTitle(detectMenuTitle());
                 }
+                Navigator navigator = UI.getCurrent().getNavigator();
+                if (navigator != null) {
+                    String state = navigator.getState();
+                    if (state == null) {
+                        state = "";
+                    }
+                    Button b = nameToButton.get(state);
+                    if (b != null) {
+                        emphasisAsSelected(b);
+                    }
+                }
             }
-        });
+        }
+        );
     }
 
     protected void createHeader() {
@@ -144,14 +160,18 @@ public class ViewMenu extends CssLayout {
             Class<?> beanClass = viewBean.getBeanClass();
 
             ViewMenuItem annotation = beanClass.
-                    getAnnotation(ViewMenuItem.class);
-            if (annotation != null && !annotation.enabled()) {
+                    getAnnotation(ViewMenuItem.class
+                    );
+            if (annotation
+                    != null && !annotation.enabled()) {
                 continue;
             }
 
-            if (beanClass.getAnnotation(CDIView.class) != null) {
+            if (beanClass.getAnnotation(CDIView.class
+            ) != null) {
                 MButton button = getButtonFor(beanClass);
                 CDIView view = beanClass.getAnnotation(CDIView.class);
+
                 nameToButton.put(view.value(), button);
                 buttons.add(button);
             }
@@ -168,24 +188,46 @@ public class ViewMenu extends CssLayout {
             @Override
             public void buttonClick(ClickEvent event) {
                 removeStyleName("valo-menu-visible");
-                CDIView cdiview = beanClass.getAnnotation(CDIView.class);
-                UI.getCurrent().getNavigator().navigateTo(cdiview.value());
+                CDIView cdiview = beanClass.getAnnotation(CDIView.class
+                );
+                UI.getCurrent()
+                        .getNavigator().navigateTo(cdiview.value());
+                emphasisAsSelected(button);
             }
         });
         return button;
     }
 
+    protected void emphasisAsSelected(Button button) {
+        if (selectedButton != null) {
+            selectedButton.removeStyleName("selected");
+        }
+        button.addStyleName("selected");
+        selectedButton = button;
+
+    }
+
     protected Resource getIconFor(Class<?> viewType) {
-        ViewMenuItem annotation = viewType.getAnnotation(ViewMenuItem.class);
+        ViewMenuItem annotation = viewType.getAnnotation(ViewMenuItem.class
+        );
         return annotation.icon();
     }
 
-    protected String getNameFor(Class<?> viewType) {
-        ViewMenuItem annotation = viewType.getAnnotation(ViewMenuItem.class);
-        if (!annotation.title().isEmpty()) {
+    protected String
+            getNameFor(Class<?> viewType) {
+        ViewMenuItem annotation = viewType.getAnnotation(ViewMenuItem.class
+        );
+        if (!annotation.title()
+                .isEmpty()) {
             return annotation.title();
         }
-        return viewType.getSimpleName();
+        String simpleName = viewType.getSimpleName();
+        // remove trailing view
+        simpleName = simpleName.replaceAll("View$", "");
+        // decamelcase
+        simpleName = StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(
+                simpleName), " ");
+        return simpleName;
     }
 
     public void setActive(String viewId) {
@@ -209,8 +251,10 @@ public class ViewMenu extends CssLayout {
     private String detectMenuTitle() {
         // try to dig a sane default from Title annotation in UI or class name
         final Class<? extends UI> uiClass = getUI().getClass();
-        Title title = uiClass.getAnnotation(Title.class);
-        if (title != null) {
+        Title title = uiClass.getAnnotation(Title.class
+        );
+        if (title
+                != null) {
             return title.value();
         } else {
             String simpleName = uiClass.getSimpleName();

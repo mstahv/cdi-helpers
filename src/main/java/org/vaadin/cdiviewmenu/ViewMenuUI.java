@@ -24,10 +24,10 @@ public class ViewMenuUI extends UI {
 
     @Override
     public void init(VaadinRequest request) {
-        setContent(viewMenuLayout);
         Navigator navigator = new Navigator(this, viewMenuLayout.
                 getMainContent());
         navigator.addProvider(viewProvider);
+        setContent(viewMenuLayout);
     }
 
     public ViewMenuLayout getViewMenuLayout() {
