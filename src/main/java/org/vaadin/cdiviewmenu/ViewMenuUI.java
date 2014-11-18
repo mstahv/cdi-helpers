@@ -23,7 +23,7 @@ public class ViewMenuUI extends UI {
     protected ViewMenuLayout viewMenuLayout;
 
     @Override
-    public void init(VaadinRequest request) {
+    protected void init(VaadinRequest request) {
         Navigator navigator = new Navigator(this, viewMenuLayout.
                 getMainContent());
         navigator.addProvider(viewProvider);
@@ -36,6 +36,10 @@ public class ViewMenuUI extends UI {
     
     public CssLayout getContentLayout() {
         return viewMenuLayout.getMainContent();
+    }
+    
+    public static ViewMenu getMenu() {
+        return ((ViewMenuUI)UI.getCurrent()).getViewMenuLayout().getViewMenu();
     }
 
 }

@@ -4,6 +4,7 @@ import com.vaadin.annotations.Title;
 import com.vaadin.cdi.CDIView;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
+import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.*;
@@ -15,14 +16,15 @@ import org.vaadin.maddon.label.Header;
 import org.vaadin.maddon.layouts.MHorizontalLayout;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Inject;
 import java.util.*;
+import javax.enterprise.context.Dependent;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.mutable.MutableObject;
 
 /**
  * A helper to automatically create a menu from available Vaadin CDI view.
@@ -45,6 +47,11 @@ public class ViewMenu extends CssLayout {
     private Header header = new Header(null).setHeaderLevel(3);
 
     private Button selectedButton;
+
+    private HashMap<String, Button> nameToButton = new HashMap<>();
+    private Button active;
+    private Component secondaryComponent;
+    private CssLayout items;
 
     public List<Bean<?>> getAvailableViews() {
         Set<Bean<?>> all = beanManager.getBeans(View.class,
@@ -104,7 +111,7 @@ public class ViewMenu extends CssLayout {
         showMenu.setIcon(FontAwesome.LIST);
         addComponent(showMenu);
 
-        CssLayout items = new CssLayout(getAsLinkButtons(getAvailableViews()));
+        items = new CssLayout(getAsLinkButtons(getAvailableViews()));
         items.setPrimaryStyleName("valo-menuitems");
         addComponent(items);
 
@@ -140,11 +147,7 @@ public class ViewMenu extends CssLayout {
         addComponent(headercontent);
     }
 
-    private HashMap<String, Button> nameToButton = new HashMap<>();
-    private Button active;
-
-    private Component[] getAsLinkButtons(
-            List<Bean<?>> availableViews) {
+    private Component[] getAsLinkButtons(List<Bean<?>> availableViews) {
 
         Collections.sort(availableViews, new Comparator<Bean<?>>() {
 
@@ -187,12 +190,7 @@ public class ViewMenu extends CssLayout {
         button.addClickListener(new ClickListener() {
             @Override
             public void buttonClick(ClickEvent event) {
-                removeStyleName("valo-menu-visible");
-                CDIView cdiview = beanClass.getAnnotation(CDIView.class
-                );
-                UI.getCurrent()
-                        .getNavigator().navigateTo(cdiview.value());
-                emphasisAsSelected(button);
+                navigateTo(beanClass);
             }
         });
         return button;
@@ -204,21 +202,16 @@ public class ViewMenu extends CssLayout {
         }
         button.addStyleName("selected");
         selectedButton = button;
-
     }
 
     protected Resource getIconFor(Class<?> viewType) {
-        ViewMenuItem annotation = viewType.getAnnotation(ViewMenuItem.class
-        );
+        ViewMenuItem annotation = viewType.getAnnotation(ViewMenuItem.class);
         return annotation.icon();
     }
 
-    protected String
-            getNameFor(Class<?> viewType) {
-        ViewMenuItem annotation = viewType.getAnnotation(ViewMenuItem.class
-        );
-        if (!annotation.title()
-                .isEmpty()) {
+    protected String getNameFor(Class<?> viewType) {
+        ViewMenuItem annotation = viewType.getAnnotation(ViewMenuItem.class);
+        if (!annotation.title().isEmpty()) {
             return annotation.title();
         }
         String simpleName = viewType.getSimpleName();
@@ -260,6 +253,64 @@ public class ViewMenu extends CssLayout {
             String simpleName = uiClass.getSimpleName();
             return simpleName.replaceAll("UI", "");
         }
-
     }
+
+    public View navigateTo(final Class<?> viewClass) {
+        CDIView cdiview = viewClass.getAnnotation(CDIView.class);
+        final String viewId = cdiview.value();
+        return navigateTo(viewId);
+    }
+
+    public View navigateTo(final String viewId) {
+        removeStyleName("valo-menu-visible");
+        Button button = nameToButton.get(viewId);
+        if (button != null) {
+            final Navigator navigator = UI.getCurrent().getNavigator();
+
+            final MutableObject<View> view = new MutableObject<>();
+
+            ViewChangeListener l = new ViewChangeListener() {
+
+                @Override
+                public boolean beforeViewChange(
+                        ViewChangeListener.ViewChangeEvent event) {
+                    return true;
+                }
+
+                @Override
+                public void afterViewChange(
+                        ViewChangeListener.ViewChangeEvent event) {
+                    view.setValue(event.getNewView());
+                }
+            };
+
+            navigator.addViewChangeListener(l);
+            navigator.navigateTo(viewId);
+            navigator.removeViewChangeListener(l);
+            emphasisAsSelected(button);
+            return view.getValue();
+        }
+        return null;
+    }
+
+    public void setSecondaryComponent(Component component) {
+        if (secondaryComponent != component) {
+            if (secondaryComponent != null) {
+                removeComponent(secondaryComponent);
+            }
+            secondaryComponent = component;
+            addComponent(component, 1);
+        }
+    }
+
+    /**
+     * Adds a custom button to the menu.
+     *
+     * @param button
+     */
+    public void addMenuItem(Button button) {
+        button.setPrimaryStyleName("valo-menu-item");
+        items.addComponent(button);
+    }
+
 }
