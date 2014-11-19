@@ -4,7 +4,7 @@
     <groupId>org.vaadin</groupId>
     <artifactId>cdi-helpers</artifactId>
     <packaging>jar</packaging>
-    <version>1.4-SNAPSHOT</version>
+    <version>1.4</version>
     <name>cdi-helpers</name>
 
     <properties>
