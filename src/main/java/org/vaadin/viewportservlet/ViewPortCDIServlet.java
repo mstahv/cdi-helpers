@@ -1,6 +1,6 @@
 package org.vaadin.viewportservlet;
 
-import com.vaadin.cdi.internal.VaadinCDIServlet;
+import com.vaadin.cdi.server.VaadinCDIServlet;
 import com.vaadin.server.*;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
