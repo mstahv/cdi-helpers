@@ -2,6 +2,8 @@ package org.vaadin.cdiviewmenu;
 
 import com.vaadin.annotations.Title;
 import com.vaadin.cdi.CDIView;
+import com.vaadin.cdi.UIScoped;
+import com.vaadin.cdi.internal.Conventions;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -22,7 +24,6 @@ import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Inject;
 import java.util.*;
-import javax.enterprise.context.Dependent;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableObject;
 
@@ -38,7 +39,7 @@ import org.apache.commons.lang3.mutable.MutableObject;
  * easily be overridden.
  *
  */
-@Dependent
+@UIScoped
 public class ViewMenu extends CssLayout {
 
     @Inject
@@ -65,7 +66,7 @@ public class ViewMenu extends CssLayout {
 
             ViewMenuItem annotation = beanClass.
                     getAnnotation(ViewMenuItem.class);
-            if (annotation != null && annotation.enabled()) {
+            if (annotation == null || annotation.enabled()) {
                 list.add(bean);
             }
         }
@@ -206,12 +207,15 @@ public class ViewMenu extends CssLayout {
 
     protected Resource getIconFor(Class<?> viewType) {
         ViewMenuItem annotation = viewType.getAnnotation(ViewMenuItem.class);
+        if(annotation == null) {
+            return FontAwesome.FILE;
+        }
         return annotation.icon();
     }
 
     protected String getNameFor(Class<?> viewType) {
         ViewMenuItem annotation = viewType.getAnnotation(ViewMenuItem.class);
-        if (!annotation.title().isEmpty()) {
+        if (annotation != null && !annotation.title().isEmpty()) {
             return annotation.title();
         }
         String simpleName = viewType.getSimpleName();
@@ -257,7 +261,10 @@ public class ViewMenu extends CssLayout {
 
     public View navigateTo(final Class<?> viewClass) {
         CDIView cdiview = viewClass.getAnnotation(CDIView.class);
-        final String viewId = cdiview.value();
+        String viewId = cdiview.value();
+        if(CDIView.USE_CONVENTIONS.equals(viewId)) {
+            viewId = Conventions.deriveMappingForView(viewClass);
+        }
         return navigateTo(viewId);
     }
 

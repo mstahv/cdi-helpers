@@ -1,5 +1,6 @@
 package org.vaadin.cdiviewmenu;
 
+import com.vaadin.cdi.UIScoped;
 import com.vaadin.server.Responsive;
 import com.vaadin.ui.CssLayout;
 import org.vaadin.maddon.layouts.MHorizontalLayout;
@@ -12,6 +13,7 @@ import javax.inject.Inject;
  * implementation it uses. getContent() method returns the layout into which you
  * should place your actual main area, or configure it for your Navigator.
  */
+@UIScoped
 public class ViewMenuLayout extends MHorizontalLayout {
 
     @Inject
