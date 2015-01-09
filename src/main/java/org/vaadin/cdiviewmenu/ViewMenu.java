@@ -13,9 +13,6 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.themes.ValoTheme;
-import org.vaadin.maddon.button.MButton;
-import org.vaadin.maddon.label.Header;
-import org.vaadin.maddon.layouts.MHorizontalLayout;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.inject.Any;
@@ -26,6 +23,9 @@ import javax.inject.Inject;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableObject;
+import org.vaadin.viritin.button.MButton;
+import org.vaadin.viritin.label.Header;
+import org.vaadin.viritin.layouts.MHorizontalLayout;
 
 /**
  * A helper to automatically create a menu from available Vaadin CDI view.
@@ -79,7 +79,13 @@ public class ViewMenu extends CssLayout {
                         getAnnotation(ViewMenuItem.class);
                 ViewMenuItem a2 = o2.getBeanClass().
                         getAnnotation(ViewMenuItem.class);
-                if (a1.order() == a2.order()) {
+                if(a1 == null && a2 == null) {
+                   return 0; // don't care about the order if no annotations
+                } else if(a1 != null && a2 == null) {
+                    return 1;
+                } else if (a1 == null) {
+                    return -1;
+                } else if (a1.order() == a2.order()) {
                     return a1.title().compareTo(a2.title());
                 } else {
                     return a1.order() - a2.order();

@@ -3,7 +3,7 @@ package org.vaadin.cdiviewmenu;
 import com.vaadin.cdi.UIScoped;
 import com.vaadin.server.Responsive;
 import com.vaadin.ui.CssLayout;
-import org.vaadin.maddon.layouts.MHorizontalLayout;
+import org.vaadin.viritin.layouts.MHorizontalLayout;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
