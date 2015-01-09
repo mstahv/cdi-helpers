@@ -4,7 +4,7 @@
     <groupId>org.vaadin</groupId>
     <artifactId>cdi-helpers</artifactId>
     <packaging>bundle</packaging>
-    <version>1.6-SNAPSHOT</version>
+    <version>1.6</version>
     <name>cdi-helpers</name>
 
     <properties>
@@ -86,9 +86,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.peimari</groupId>
-            <artifactId>maddon</artifactId>
-            <version>1.21</version>
+            <groupId>org.vaadin</groupId>
+            <artifactId>viritin</artifactId>
+            <version>1.22</version>
         </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
