@@ -79,21 +79,23 @@ public class ViewMenu extends CssLayout {
                         getAnnotation(ViewMenuItem.class);
                 ViewMenuItem a2 = o2.getBeanClass().
                         getAnnotation(ViewMenuItem.class);
-                if(a1 == null && a2 == null) {
-                   return 0; // don't care about the order if no annotations
-                } else if(a1 != null && a2 == null) {
-                    return 1;
-                } else if (a1 == null) {
-                    return -1;
-                } else if (a1.order() == a2.order()) {
-                    return a1.title().compareTo(a2.title());
+                if (a1 == null && a2 == null) {
+                    final String name1 = getNameFor(o1.getBeanClass());
+                    final String name2 = getNameFor(o2.getBeanClass());
+                    return name1.compareTo(name2); // just compare names
                 } else {
-                    return a1.order() - a2.order();
+                    int order1 = a1 == null ? ViewMenuItem.DEFAULT : a1.order();
+                    int order2 = a2 == null ? ViewMenuItem.DEFAULT : a2.order();
+                    if (order1 == order2) {
+                        final String name1 = getNameFor(o1.getBeanClass());
+                        final String name2 = getNameFor(o2.getBeanClass());
+                        return name1.compareTo(name2); // just compare names
+                    } else {
+                        return order1 - order2;
+                    }
                 }
             }
         });
-
-        // TODO check if accessible for current user
         // TODO check if accessible for current user
         return list;
     }
@@ -181,8 +183,12 @@ public class ViewMenu extends CssLayout {
             ) != null) {
                 MButton button = getButtonFor(beanClass);
                 CDIView view = beanClass.getAnnotation(CDIView.class);
+                String viewId = view.value();
+                if (CDIView.USE_CONVENTIONS.equals(viewId)) {
+                    viewId = Conventions.deriveMappingForView(beanClass);
+                }
 
-                nameToButton.put(view.value(), button);
+                nameToButton.put(viewId, button);
                 buttons.add(button);
             }
         }
@@ -213,7 +219,7 @@ public class ViewMenu extends CssLayout {
 
     protected Resource getIconFor(Class<?> viewType) {
         ViewMenuItem annotation = viewType.getAnnotation(ViewMenuItem.class);
-        if(annotation == null) {
+        if (annotation == null) {
             return FontAwesome.FILE;
         }
         return annotation.icon();
@@ -254,10 +260,8 @@ public class ViewMenu extends CssLayout {
     private String detectMenuTitle() {
         // try to dig a sane default from Title annotation in UI or class name
         final Class<? extends UI> uiClass = getUI().getClass();
-        Title title = uiClass.getAnnotation(Title.class
-        );
-        if (title
-                != null) {
+        Title title = uiClass.getAnnotation(Title.class);
+        if (title != null) {
             return title.value();
         } else {
             String simpleName = uiClass.getSimpleName();
@@ -268,7 +272,7 @@ public class ViewMenu extends CssLayout {
     public View navigateTo(final Class<?> viewClass) {
         CDIView cdiview = viewClass.getAnnotation(CDIView.class);
         String viewId = cdiview.value();
-        if(CDIView.USE_CONVENTIONS.equals(viewId)) {
+        if (CDIView.USE_CONVENTIONS.equals(viewId)) {
             viewId = Conventions.deriveMappingForView(viewClass);
         }
         return navigateTo(viewId);

@@ -13,12 +13,13 @@ public @interface ViewMenuItem {
     
     public static final int END = Integer.MAX_VALUE;
     public static final int BEGINNING = 0;
+    public static final int DEFAULT = 1000;
 	
 	public boolean enabled() default true;
 	
 	public String title() default "";
     
-    public int order() default END;
+    public int order() default DEFAULT;
     
     public FontAwesome icon() default FontAwesome.FILE;
 
