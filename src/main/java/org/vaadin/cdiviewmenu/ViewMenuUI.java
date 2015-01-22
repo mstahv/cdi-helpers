@@ -55,16 +55,19 @@ public class ViewMenuUI extends UI {
     }
 
     /**
-     * Workaround for issue 1, related to vaadin issues: 13566, 14884 
-     * 
+     * Workaround for issue 1, related to vaadin issues: 13566, 14884
+     *
      * @param navigationState the view id that was requested
-     * @param e the exception thrown by Navigator 
+     * @param e the exception thrown by Navigator
      */
     protected void handleNavigationError(String navigationState, Exception e) {
         Notification.show(
                 "The requested view (" + navigationState + ") was not available, "
                 + "entering default screen.", Notification.Type.WARNING_MESSAGE);
-        getNavigator().navigateTo("");
+        if (navigationState != null && !navigationState.isEmpty()) {
+            getNavigator().navigateTo("");
+        }
+        getSession().getErrorHandler().error(new com.vaadin.server.ErrorEvent(e));
     }
 
 }
