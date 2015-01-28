@@ -127,6 +127,7 @@ public class ViewMenu extends CssLayout {
         addAttachListener(new AttachListener() {
             @Override
             public void attach(AttachEvent event) {
+                getUI().addStyleName("valo-menu-responsive");
                 if (getMenuTitle() == null) {
                     setMenuTitle(detectMenuTitle());
                 }
