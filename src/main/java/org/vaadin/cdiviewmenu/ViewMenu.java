@@ -45,11 +45,11 @@ public class ViewMenu extends CssLayout {
     @Inject
     BeanManager beanManager;
 
-    private Header header = new Header(null).setHeaderLevel(3);
+    private final Header header = new Header(null).setHeaderLevel(3);
 
     private Button selectedButton;
 
-    private HashMap<String, Button> nameToButton = new HashMap<>();
+    private final HashMap<String, Button> nameToButton = new HashMap<>();
     private Button active;
     private Component secondaryComponent;
     private CssLayout items;
