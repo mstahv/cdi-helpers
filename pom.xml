@@ -4,7 +4,7 @@
     <groupId>org.vaadin</groupId>
     <artifactId>cdi-helpers</artifactId>
     <packaging>bundle</packaging>
-    <version>1.10-SNAPSHOT</version>
+    <version>1.10</version>
     <name>cdi-helpers</name>
 
     <properties>
@@ -25,7 +25,7 @@
         <url>git://github.com/mstahv/cdi-helpers.git</url>
         <connection>scm:git:git://github.com/mstahv/cdi-helpers.git</connection>
         <developerConnection>scm:git:ssh://git@github.com:/mstahv/cdi-helpers.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>cdi-helpers-1.10</tag>
     </scm>
 
     <issueManagement>
