@@ -3,6 +3,7 @@ package org.vaadin.cdiviewmenu;
 import com.vaadin.annotations.Title;
 import com.vaadin.cdi.CDIView;
 import com.vaadin.cdi.UIScoped;
+import com.vaadin.cdi.access.AccessControl;
 import com.vaadin.cdi.internal.Conventions;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
@@ -13,19 +14,20 @@ import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.themes.ValoTheme;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.mutable.MutableObject;
+import org.vaadin.viritin.button.MButton;
+import org.vaadin.viritin.label.Header;
+import org.vaadin.viritin.layouts.MHorizontalLayout;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Inject;
 import java.util.*;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.mutable.MutableObject;
-import org.vaadin.viritin.button.MButton;
-import org.vaadin.viritin.label.Header;
-import org.vaadin.viritin.layouts.MHorizontalLayout;
 
 /**
  * A helper to automatically create a menu from available Vaadin CDI view.
@@ -44,6 +46,9 @@ public class ViewMenu extends CssLayout {
 
     @Inject
     BeanManager beanManager;
+
+    @Inject
+    AccessControl accessControl;
 
     private final Header header = new Header(null).setHeaderLevel(3);
 
@@ -67,7 +72,11 @@ public class ViewMenu extends CssLayout {
             ViewMenuItem annotation = beanClass.
                     getAnnotation(ViewMenuItem.class);
             if (annotation == null || annotation.enabled()) {
-                list.add(bean);
+
+                // check user access
+                if (isUserHavingAccessToView(bean)) {
+                    list.add(bean);
+                }
             }
         }
 
@@ -98,6 +107,29 @@ public class ViewMenu extends CssLayout {
         });
         // TODO check if accessible for current user
         return list;
+    }
+
+    boolean isUserHavingAccessToView(Bean<?> viewBean) {
+
+        if (viewBean.getBeanClass().isAnnotationPresent(CDIView.class)) {
+            if (!viewBean.getBeanClass()
+                    .isAnnotationPresent(RolesAllowed.class)) {
+                // No roles defined, everyone is allowed
+                return true;
+
+            } else {
+
+                RolesAllowed rolesAnnotation = viewBean.getBeanClass()
+                        .getAnnotation(RolesAllowed.class);
+                boolean hasAccess = accessControl
+                        .isUserInSomeRole(rolesAnnotation.value());
+
+                return hasAccess;
+            }
+        }
+
+        // No annotation defined, everyone is allowed
+        return true;
     }
 
     @PostConstruct
