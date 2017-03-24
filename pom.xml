@@ -8,6 +8,9 @@
     <name>cdi-helpers</name>
 
     <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- ZIP Manifest fields -->
@@ -100,13 +103,13 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    
+
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-bom</artifactId>
-                <version>8.0.3</version>
+                <version>8.0.4</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -166,7 +169,7 @@
                     </archive>
                 </configuration>
             </plugin>
-			
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
