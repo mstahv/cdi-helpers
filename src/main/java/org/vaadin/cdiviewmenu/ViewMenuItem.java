@@ -1,11 +1,11 @@
 package org.vaadin.cdiviewmenu;
 
-import com.vaadin.server.FontAwesome;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import com.vaadin.icons.VaadinIcons;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
@@ -21,6 +21,6 @@ public @interface ViewMenuItem {
     
     public int order() default DEFAULT;
     
-    public FontAwesome icon() default FontAwesome.FILE;
+    public VaadinIcons icon() default VaadinIcons.FILE;
 
 }
