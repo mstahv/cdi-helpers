@@ -5,11 +5,12 @@ import com.vaadin.cdi.CDIView;
 import com.vaadin.cdi.UIScoped;
 import com.vaadin.cdi.access.AccessControl;
 import com.vaadin.cdi.internal.Conventions;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.server.FontAwesome;
 import com.vaadin.server.Resource;
+import com.vaadin.shared.Registration;
 import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -149,7 +150,7 @@ public class ViewMenu extends CssLayout {
         showMenu.addStyleName(ValoTheme.BUTTON_PRIMARY);
         showMenu.addStyleName(ValoTheme.BUTTON_SMALL);
         showMenu.addStyleName("valo-menu-toggle");
-        showMenu.setIcon(FontAwesome.LIST);
+        showMenu.setIcon(VaadinIcons.LIST);
         addComponent(showMenu);
 
         items = new CssLayout(getAsLinkButtons(getAvailableViews()));
@@ -253,7 +254,7 @@ public class ViewMenu extends CssLayout {
     protected Resource getIconFor(Class<?> viewType) {
         ViewMenuItem annotation = viewType.getAnnotation(ViewMenuItem.class);
         if (annotation == null) {
-            return FontAwesome.FILE;
+            return VaadinIcons.FILE;
         }
         return annotation.icon();
     }
@@ -334,9 +335,9 @@ public class ViewMenu extends CssLayout {
                 }
             };
 
-            navigator.addViewChangeListener(l);
+            Registration r = navigator.addViewChangeListener(l);
             navigator.navigateTo(viewId);
-            navigator.removeViewChangeListener(l);
+            r.remove();
             emphasisAsSelected(button);
             return view.getValue();
         }
