@@ -1,3 +1,6 @@
+[![Published on Vaadin  Directory](https://img.shields.io/badge/Vaadin%20Directory-published-00b4f0.svg)](https://vaadin.com/directory/component/cdi-helpers)
+[![Stars on vaadin.com/directory](https://img.shields.io/vaadin-directory/star/cdi-helpers.svg)](https://vaadin.com/directory/component/cdi-helpers)
+
 # cdi-helpers
 
 This Vaadin add-on contains some generic helpers that are often needed in Vaadin CDI based applications.
